@@ -85,10 +85,24 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let navigationController = segue.destinationViewController as! UINavigationController
-        let filtersViewController = navigationController.topViewController as! FiltersViewController
+  
+        if segue.identifier == "filterView" {
+            let navigationController = segue.destinationViewController as! UINavigationController
+            let filtersViewController = navigationController.topViewController as! FiltersViewController
+            
+            filtersViewController.delegate = self
+        }
+        else {
+            let yelpDetailsViewController = segue.destinationViewController as! YelpDetailsViewController
+            let indexPath = tableView.indexPathForCell(sender as! UITableViewCell)
+            
+            let business = filteredBusinesses![indexPath!.row]
+            yelpDetailsViewController.business = business
+            view.endEditing(true)
+        }
         
-        filtersViewController.delegate = self
+        
+
     }
     
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: Filter) {
