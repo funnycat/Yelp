@@ -14,8 +14,24 @@ let yelpConsumerSecret = "33QCvh5bIF5jIHR5klQr7RtBDhQ"
 let yelpToken = "uRcRswHFYa1VkDrGV6LAW2F8clGh5JHV"
 let yelpTokenSecret = "mqtKIxMIR4iBtBPZCmCLEb-Dz3Y"
 
+
 enum YelpSortMode: Int {
-    case BestMatched = 0, Distance, HighestRated
+    case BestMatched = 0, Distance, HighestRated, count
+    
+    static let titles = [
+        BestMatched: "Best Matched",
+        Distance: "Distance",
+        HighestRated: "Highest Rated",
+
+    ]
+    
+    func getTitle() -> String {
+        if let title = YelpSortMode.titles[self] {
+            return title
+        } else {
+            return "Error: passed in a number that is not valid"
+        }
+    }
 }
 
 class YelpClient: BDBOAuth1RequestOperationManager {
@@ -47,12 +63,13 @@ class YelpClient: BDBOAuth1RequestOperationManager {
         let token = BDBOAuth1Credential(token: accessToken, secret: accessSecret, expiration: nil)
         self.requestSerializer.saveAccessToken(token)
     }
+
     
     func searchWithTerm(term: String, completion: ([Business]!, NSError!) -> Void) -> AFHTTPRequestOperation {
-        return searchWithTerm(term, sort: nil, categories: nil, deals: nil, completion: completion)
+        return searchWithTerm(term, sort: nil, categories: nil, deals: nil, distance: nil, completion: completion)
     }
     
-    func searchWithTerm(term: String, sort: YelpSortMode?, categories: [String]?, deals: Bool?, completion: ([Business]!, NSError!) -> Void) -> AFHTTPRequestOperation {
+    func searchWithTerm(term: String, sort: YelpSortMode?, categories: [String]?, deals: Bool?, distance: Int?, completion: ([Business]!, NSError!) -> Void) -> AFHTTPRequestOperation {
         // For additional parameters, see http://www.yelp.com/developers/documentation/v2/search_api
 
         // Default the location to San Francisco
@@ -68,6 +85,10 @@ class YelpClient: BDBOAuth1RequestOperationManager {
         
         if deals != nil {
             parameters["deals_filter"] = deals!
+        }
+        
+        if distance != nil {
+            parameters["radius_filter"] = distance!
         }
         
         print(parameters)
